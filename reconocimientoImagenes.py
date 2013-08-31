@@ -37,12 +37,17 @@ class Perceptron():
 
         self.numEntradas = numEntradas
         self.entradas = []
+        
+        # Cada matriz dentro de esta será el valor de los nodos de las capas
+        # ocultas. Tengo que buscar una forma de definirla dado el constructor.
+        self.capasOcultas = [] 
 
         # Los pesos es una matriz donde las filas representan las salidas y
         # las columnas representan las entradas, por lo tanto el peso Wi,j
         # estará en la fila i, columna j
         # Es decir pesos[salida][entrada]
-        self.pesos = self.generaPesosAleatorios(numEntradas)
+        # TODO Propagar el numero de capas a generaPesos. 
+        self.pesos = self.generaPesosAleatorios(numEntrada, numCapas) # TODO
 
     def generaPesosAleatorios(self, m):
     # Generacion de pesos aleatorios para empezar a trabajar con la red. 
