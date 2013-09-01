@@ -16,6 +16,8 @@
 import math
 from random import random
 
+import pickle
+
 # Constante e, sacada de math. 
 e = math.e
 
@@ -47,7 +49,7 @@ class Perceptron():
         # estará en la fila i, columna j
         # Es decir pesos[salida][entrada]
         # TODO Propagar el numero de capas a generaPesos. 
-        self.pesos = self.generaPesosAleatorios(numEntrada, numCapas) # TODO
+        self.pesos = self.generaPesosAleatorios(numEntradas) # TODO
 
     def generaPesosAleatorios(self, m):
     # Generacion de pesos aleatorios para empezar a trabajar con la red. 
@@ -104,6 +106,19 @@ class Perceptron():
 # Parte 3: Aprendizaje para reconocer caras
 
 
+# Parte auxiliar:
+
+def writeRed(red):
+# Funcion para guardar una red neuronal a un archivo. 
+    with open('red_data.pk', 'wb') as output:
+        pickle.dump(red, output, pickle.HIGHEST_PROTOCOL)
+
+def readRed():
+    with open('red_data.pk', 'rb') as input:
+        res = pickle.load(input)
+        print(res)
+
+
 # Zona de testeo
 # TODO Tener un test (o varios) preparados para cada parte, y así probarlos
 # delante del profesor. 
@@ -127,7 +142,7 @@ def generacionEntrenamiento(entradas, salidas, casos):
             y = random()
         d.append((x,y))
     return d
-
+"""
 ent = generacionEntrenamiento(3,1,2)
 # Tests perceptrón
 print('Generacion de Entrenamiento - 3 in, 1 out, 2 cases: ')
@@ -136,4 +151,7 @@ perceptron = Perceptron(3)
 perceptron.entradas = [1,30,-10]
 print(perceptron.reglaDelta(ent, 0.9))
 print(perceptron.salida())
-
+"""
+arp = 'Prueba de escritura'
+writeRed(arp)
+readRed()
