@@ -15,7 +15,7 @@
 # Uso math para la constante e y random para generar pesos aleatoriamente. 
 import math
 from random import random
-
+# Pickle se usa para el guardado de objetos 
 import pickle
 
 # Constante e, sacada de math. 
@@ -29,42 +29,66 @@ def sigmoideD(x):
 
     return sigmoide(x)*(1.0-sigmoide(x))
 
-class Perceptron():
-# Clase perceptrón.
+class RedNeuronal():
+# Clase RedNeuronal para representar las redes neuronales. 
 
-    def __init__(self, numEntradas):
-    # De los perceptrones, así como de las redes neuronales solo sabemos su
-    # estructura, de tal manera que al no haber capas ocultas solo tenemos en
-    # cuenta el número de entradas y de salidas. 
-
-        self.numEntradas = numEntradas
-        self.entradas = []
+    def __init__(self, matrizTamanos):
+        # Matriz - los tamaños de cada capa [entrada, co1,..,con, salida]
+        # Es decir, la cantidad de unidades en cada capa, siendo la primera las
+        # entradas y la ultima las salidas (por lo tanto el tamaño mínimo es 2)
+        self.matrizTamanos = matrizTamanos
         
-        # Cada matriz dentro de esta será el valor de los nodos de las capas
-        # ocultas. Tengo que buscar una forma de definirla dado el constructor.
-        self.capasOcultas = [] 
+        # Matriz de valores. Cada elemento de esta lista es una lista con los
+        # valores de cada capa. valores[0] = [x,x,x,x..] - entradas
+        self.valores = self.iniciaValores(matrizTamanos)  # En el algoritmo del libro esto es in
+        self.valsigm = self.iniciaValores(matrizTamanos)  #  ""                               aj
 
-        # Los pesos es una matriz donde las filas representan las salidas y
-        # las columnas representan las entradas, por lo tanto el peso Wi,j
-        # estará en la fila i, columna j
-        # Es decir pesos[salida][entrada]
-        # TODO Propagar el numero de capas a generaPesos. 
-        self.pesos = self.generaPesosAleatorios(numEntradas) # TODO
+        
+        # Lista de las matrices con los pesos. La matriz[0] serán los pesos de
+        # las entradas a la primera capa (o salida), la segunda de esta primera
+        # capa a la siguiente, y así hasta llegar a la salida. Debe haber n+1
+        # matrices, si hay n capas ocultas (ej: 1 capa oculta, 2 matrices)
+        # 
+        # En cada matriz m, m[0][1] sera el peso de ir del elemento 0 de la
+        # capa 1 al elemento 1 de la capa 2. (por ejemplo)
+        self.pesos = self.generaPesosAleatorios(self.matrizTamanos)
+    
+    def iniciaValores(self, matrizTamanos):
+        res = []
+        for n in matrizTamanos:
+            subres = []
+            for m in range(n):
+                subres.append(0)
+            res.append(subres)
 
-    def generaPesosAleatorios(self, m):
+        return res
+
+    def generaMatrizAleatoria(self, n, m):
+    # Genera una matriz con numeros aleatorios entre [0,1] de n*m
+        res = []
+        for x in range(n):
+            fila = []
+            for y in range(m):
+                fila.append(random())
+            res.append(fila)
+
+        return res
+
+    def generaPesosAleatorios(self, matrizTamanos):
     # Generacion de pesos aleatorios para empezar a trabajar con la red. 
-        a = []
-        for x in range(m):
-            a.append(random())
-        return a
+        res = []
+        for x in range(len(matrizTamanos)):
+            if x != 0:
+                res.append(self.generaMatrizAleatoria(matrizTamanos[x-1],matrizTamanos[x]))
+        return res
 
     def salida(self):
     # TODO Convertir salida en el calculo del nodo N (oculto o final) dados sus
     # nodos anteriores
     # Define la salida i del perceptrón. Hace la operacion g(sum(a(i)*w(i))
         res = 0
-        for entrada in range(len(self.entradas)):
-            res += self.entradas[entrada]*self.pesos[entrada]
+        for entrada in range(len(self.datos)):
+            res += self.datos[entrada]*self.pesos[entrada]
         return res
         
 
@@ -72,7 +96,8 @@ class Perceptron():
     # Regla Delta para perceptrones simples. 
     # TODO Si voy a hacer una red completa en la clase perceptron, tengo que
     # hacer que la regla delta solo se pueda aplicar si NO HAY capas ocultas,
-    # no solo haciendo que de fallo. 
+    # no solo haciendo que de fallo. (Y los perceptrones solo tienen una
+    # salida) 
     
         # Generamos los pesos aleatoriamente, aunque en la práctica ya están
         # generados. 
@@ -93,6 +118,64 @@ class Perceptron():
             print("[Entrada] - ",x," - y - ", y, "  + ",self.pesos)
                 
         return self.pesos
+
+    def retrop(self, entrenamiento, alpha):
+    # Algoritmo de retropropagacion
+
+        # Errores [capa][nodo]
+        errores = []
+        for capa in range(len(self.matrizTamanos)):
+            suberrores = []
+            for nodo in range(self.matrizTamanos[capa]):
+                suberrores.append(0)
+            errores.append(suberrores)
+        # Generamos los pesos aleatoriamente, aunque en la práctica ya están
+        # generados. 
+        # Definimos la condicion de terminacion
+
+        # while not condicionTerminacion:
+
+        for x,y in entrenamiento:
+            # Metemos las entradas en sus respectivos lugares. 
+                
+            self.valores[0] = x
+            self.valsigm[0] = x # TODO Rellenarlo de ceros, vago. 
+            # Propagamos hasta la salida. 
+            # Recorremos cada capa
+            for capa in range(len(self.pesos)):
+                valoresCapa = []
+                valoresSigma = []
+                for nodo in range(self.matrizTamanos[capa+1]):
+                    sumEntradasPeso = 0
+                    for old in range(len(self.valores[capa])):
+                        sumEntradasPeso += self.valores[capa][old]*self.pesos[capa][old][nodo]
+                    valoresCapa.append(sumEntradasPeso)
+                    valoresSigma.append(sigmoide(sumEntradasPeso))
+                self.valores[capa+1] = valoresCapa
+                self.valsigm[capa+1] = valoresSigma
+
+            # Definimos los errores para la capa de salida
+            err = []
+            for nodo in range(len(self.valores[len(self.valores)-1])):
+                delta = sigmoideD(self.valores[len(self.valores)-1][nodo])*(y[nodo]-self.valsigm[len(self.valsigm)-1][nodo])
+                err.append(delta)
+            errores[len(self.matrizTamanos)-1] = err
+        
+            # Recorrer las capas inversamente, empezando por la anterior a
+            # salida. 
+            for n in reversed(range(len(self.valores)-1)):
+                # Ahora, en cada capa, recorremos sus nodos
+                for nodo in range(len(self.valores[n])):
+                    aux = 0
+                    for nodosig in range(len(errores[n+1])):
+                        aux += errores[n+1][nodosig]*self.pesos[n][nodo][nodosig]
+                    errores[n][nodo] = sigmoideD(self.valores[n][nodo]) * aux
+
+                    for nodosig in range(len(errores[n+1])):
+                        self.pesos[n][nodo][nodosig] += alpha*self.valsigm[n][nodo]*errores[n+1][nodosig]
+            print('[ITERACION]: ', self.pesos)
+
+        return self
         
 # Parte 2: Implementacion de algoritmos de aprendizaje de redes neuronales. 
 #   Regla delta para entrenamiento del perceptron simple. 
@@ -116,7 +199,7 @@ def writeRed(red):
 def readRed():
     with open('red_data.pk', 'rb') as input:
         res = pickle.load(input)
-        print(res)
+        return res
 
 
 # Zona de testeo
@@ -134,24 +217,20 @@ def generacionEntrenamiento(entradas, salidas, casos):
         x = []
         for entrada in range(entradas):
             x.append(random())
-        if salidas > 1:
-            y = []
-            for salida in range(salidas):
-                y.append(random())
-        else:
-            y = random()
+        y = []
+        for salida in range(salidas):
+            y.append(random())
         d.append((x,y))
     return d
-"""
-ent = generacionEntrenamiento(3,1,2)
-# Tests perceptrón
-print('Generacion de Entrenamiento - 3 in, 1 out, 2 cases: ')
-print(ent)
-perceptron = Perceptron(3)
-perceptron.entradas = [1,30,-10]
-print(perceptron.reglaDelta(ent, 0.9))
-print(perceptron.salida())
-"""
-arp = 'Prueba de escritura'
-writeRed(arp)
-readRed()
+ent = generacionEntrenamiento(6,2,15)
+print('Conjunto de entrenamiento: ',ent)
+print('--')
+rn = RedNeuronal([6,2,2])
+print(rn.pesos)
+print('Retro, primer intento')
+print(rn.retrop(ent,0.4).pesos)
+
+
+
+#print(RedNeuronal([[0]]).generaPesosAleatorios([2,1,3,2]))
+
