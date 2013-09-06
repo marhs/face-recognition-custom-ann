@@ -3,15 +3,6 @@
 
 # Reconocimento de imágenes mediante redes neuronales artificiales. 
 
-# TODO General
-#   * Buscar una forma de guardar redes neuronales a archivo
-#       - En este caso, tendríamos que guardar un objeto de una clase ya
-#         creado, con sus matrices y todo. 
-#       - También necesitamos una forma de recuperar redes desde archivo. 
-#   * Escribir una funcion para, dado unas entradas (y los pesos actuales de la
-#     red neuronal) devuelva una/s salida/s, para así probar si la estimacion
-#     de los algoritmos es buena con los casos particulares. 
-
 # Uso math para la constante e y random para generar pesos aleatoriamente. 
 import math
 from random import random
@@ -99,11 +90,16 @@ class RedNeuronal():
     # hacer que la regla delta solo se pueda aplicar si NO HAY capas ocultas,
     # no solo haciendo que de fallo. (Y los perceptrones solo tienen una
     # salida) 
-    
+   
+        # TODO Comprobar que es un perceptrón antes de ejecutar el algoritmo,
+        # es decir, 1 capa de entrada (N entradas) y 1 salida.
+        if(len(self.matrizTamanos) != 2):
+            return False
+
         # Generamos los pesos aleatoriamente, aunque en la práctica ya están
         # generados. 
-        self.pesos = self.generaPesosAleatorios(self.numEntradas)
-        print("Pesos iniciales: ", self.pesos) 
+        self.pesos = self.generaPesosAleatorios(self.matrizTamanos)
+        print("Pesos iniciales: ", self.pesos[0]) 
         # Definimos la condicion de terminacion
 
         # while not condicionTerminacion:
@@ -111,11 +107,12 @@ class RedNeuronal():
             ino = 0
             ws = []
             for entrada in range(len(x)):
-                ino += self.pesos[entrada] * x[entrada]
+                ino += self.pesos[0][entrada][0] * x[entrada]
                 o = sigmoide(ino)
                 
-                for w in range(len(self.pesos)):
-                    self.pesos[w] = self.pesos[w] + factorAprendizaje*(y-o) * sigmoideD(ino) * x[w]
+                print('    [Ino] - ',ino)
+                for w in range(len(self.pesos[0][0])):
+                    self.pesos[0][w][0] = self.pesos[0][w][0] + factorAprendizaje*(y[0]-o) * sigmoideD(ino) * x[w]
             print("[Entrada] - ",x," - y - ", y, "  + ",self.pesos)
                 
         return self.pesos
@@ -231,23 +228,17 @@ def generacionEntrenamiento(entradas, salidas, casos):
     for caso in range(casos):
         x = []
         for entrada in range(entradas):
-            x.append(random())
+            x.append(1)
         y = []
         for salida in range(salidas):
-            y.append(random())
+            y.append(2)
         d.append((x,y))
     return d
 ent = generacionEntrenamiento(2,1,15)
 print('--')
-red = RedNeuronal([2,2,1])
-print(red.pesos)
-red.pesos = [[[0.5,0.5],[0.4,0.5]], [[0.5],[0.5]]]
-print(red.pesos)
-red4 = RedNeuronal([2,1])
-print('Pesos antes: ',red4.pesos)
-red4 = abrirRed('prueba')
-print('Pesos despues: ',red4.pesos)
-
+red = RedNeuronal([2,1])
+print('Pesos red: ',red.pesos)
+print(red.reglaDelta(ent,0.1))
 """
 rn = RedNeuronal([6,2,2])
 print(rn.pesos)
