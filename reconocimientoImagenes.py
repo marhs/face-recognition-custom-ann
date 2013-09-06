@@ -53,6 +53,7 @@ class RedNeuronal():
         # capa 1 al elemento 1 de la capa 2. (por ejemplo)
         self.pesos = self.generaPesosAleatorios(self.matrizTamanos)
     
+    
     def iniciaValores(self, matrizTamanos):
         res = []
         for n in matrizTamanos:
@@ -173,7 +174,6 @@ class RedNeuronal():
 
                     for nodosig in range(len(errores[n+1])):
                         self.pesos[n][nodo][nodosig] += alpha*self.valsigm[n][nodo]*errores[n+1][nodosig]
-            print('[ITERACION]: ', self.pesos)
 
         return self
         
@@ -201,6 +201,21 @@ def readRed():
         res = pickle.load(input)
         return res
 
+def guardarRed(red, nombre):
+# Guardamos la red neuronal a un archivo. Limpiamos los valores y dejamos
+# solo los pesos, que es lo que nos importa. 
+    red.valores = red.iniciaValores(red.matrizTamanos)  
+    red.valsigm = red.iniciaValores(red.matrizTamanos)
+
+    with open(nombre, 'wb') as output:
+        pickle.dump(red, output, pickle.HIGHEST_PROTOCOL)
+
+    return nombre
+
+def abrirRed(nombre):
+    with open(nombre, 'rb') as inp:
+        red = pickle.load(inp)
+    return red
 
 # Zona de testeo
 # TODO Tener un test (o varios) preparados para cada parte, y así probarlos
@@ -222,14 +237,23 @@ def generacionEntrenamiento(entradas, salidas, casos):
             y.append(random())
         d.append((x,y))
     return d
-ent = generacionEntrenamiento(6,2,15)
-print('Conjunto de entrenamiento: ',ent)
+ent = generacionEntrenamiento(2,1,15)
 print('--')
+red = RedNeuronal([2,2,1])
+print(red.pesos)
+red.pesos = [[[0.5,0.5],[0.4,0.5]], [[0.5],[0.5]]]
+print(red.pesos)
+red4 = RedNeuronal([2,1])
+print('Pesos antes: ',red4.pesos)
+red4 = abrirRed('prueba')
+print('Pesos despues: ',red4.pesos)
+
+"""
 rn = RedNeuronal([6,2,2])
 print(rn.pesos)
 print('Retro, primer intento')
 print(rn.retrop(ent,0.4).pesos)
-
+"""
 
 
 #print(RedNeuronal([[0]]).generaPesosAleatorios([2,1,3,2]))
