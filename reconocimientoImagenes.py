@@ -91,9 +91,8 @@ class RedNeuronal():
     # no solo haciendo que de fallo. (Y los perceptrones solo tienen una
     # salida) 
    
-        # TODO Comprobar que es un perceptrón antes de ejecutar el algoritmo,
-        # es decir, 1 capa de entrada (N entradas) y 1 salida.
-        if(len(self.matrizTamanos) != 2):
+        # Comprobamos que sea un perceptrón. 
+        if(len(self.matrizTamanos) != 2 or self.matrizTamanos[1] != 1):
             return False
 
         # Generamos los pesos aleatoriamente, aunque en la práctica ya están
