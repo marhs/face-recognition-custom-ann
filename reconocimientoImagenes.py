@@ -8,7 +8,8 @@ import math
 from random import random
 # Pickle se usa para el guardado de objetos 
 import pickle
-
+# Struct lo usamos para leer imágenes binarias
+import struct
 # Constante e, sacada de math. 
 e = math.e
 
@@ -61,7 +62,7 @@ class RedNeuronal():
         for x in range(n):
             fila = []
             for y in range(m):
-                fila.append(random())
+                fila.append(0.5)
             res.append(fila)
 
         return res
@@ -85,23 +86,20 @@ class RedNeuronal():
         
 
     def reglaDelta(self, entrenamiento, factorAprendizaje):
+    # TODO No funciona para valores muy altos del conjunto de entrenamiento
+    # (por ejemplo, 255). Habría que reducir los valores proporcionalmente o
+    # algo así.
     # Regla Delta para perceptrones simples. 
-    # TODO Si voy a hacer una red completa en la clase perceptron, tengo que
-    # hacer que la regla delta solo se pueda aplicar si NO HAY capas ocultas,
-    # no solo haciendo que de fallo. (Y los perceptrones solo tienen una
-    # salida) 
-   
+
         # Comprobamos que sea un perceptrón. 
         if(len(self.matrizTamanos) != 2 or self.matrizTamanos[1] != 1):
             return False
 
         # Generamos los pesos aleatoriamente, aunque en la práctica ya están
         # generados. 
-        self.pesos = self.generaPesosAleatorios(self.matrizTamanos)
-        print("Pesos iniciales: ", self.pesos[0]) 
         # Definimos la condicion de terminacion
 
-        # while not condicionTerminacion:
+        # TODO while not condicionTerminacion:
         for x,y in entrenamiento:
             ino = 0
             ws = []
@@ -109,11 +107,9 @@ class RedNeuronal():
                 ino += self.pesos[0][entrada][0] * x[entrada]
                 o = sigmoide(ino)
                 
-                print('    [Ino] - ',ino)
-                for w in range(len(self.pesos[0][0])):
-                    self.pesos[0][w][0] = self.pesos[0][w][0] + factorAprendizaje*(y[0]-o) * sigmoideD(ino) * x[w]
-            print("[Entrada] - ",x," - y - ", y, "  + ",self.pesos)
-                
+            for w in range(len(self.pesos[0])):
+                a = self.pesos[0][w][0] 
+                self.pesos[0][w][0] = self.pesos[0][w][0] + factorAprendizaje*(y[0]-o) * sigmoideD(ino) * x[w]
         return self.pesos
 
     def retrop(self, entrenamiento, alpha):
@@ -126,15 +122,13 @@ class RedNeuronal():
             for nodo in range(self.matrizTamanos[capa]):
                 suberrores.append(0)
             errores.append(suberrores)
-        # Generamos los pesos aleatoriamente, aunque en la práctica ya están
-        # generados. 
         # Definimos la condicion de terminacion
 
         # while not condicionTerminacion:
 
         for x,y in entrenamiento:
             # Metemos las entradas en sus respectivos lugares. 
-                
+            print(self.pesos)    
             self.valores[0] = x
             self.valsigm[0] = x # TODO Rellenarlo de ceros, vago. 
             # Propagamos hasta la salida. 
@@ -145,12 +139,11 @@ class RedNeuronal():
                 for nodo in range(self.matrizTamanos[capa+1]):
                     sumEntradasPeso = 0
                     for old in range(len(self.valores[capa])):
-                        sumEntradasPeso += self.valores[capa][old]*self.pesos[capa][old][nodo]
+                        sumEntradasPeso += self.valsigm[capa][old]*self.pesos[capa][old][nodo]
                     valoresCapa.append(sumEntradasPeso)
                     valoresSigma.append(sigmoide(sumEntradasPeso))
                 self.valores[capa+1] = valoresCapa
                 self.valsigm[capa+1] = valoresSigma
-
             # Definimos los errores para la capa de salida
             err = []
             for nodo in range(len(self.valores[len(self.valores)-1])):
@@ -173,14 +166,21 @@ class RedNeuronal():
 
         return self
         
-# Parte 2: Implementacion de algoritmos de aprendizaje de redes neuronales. 
-#   Regla delta para entrenamiento del perceptron simple. 
+# Lectura de las imágenes del conjunto de entrenamiento. 
+
+def leerImagen(nombre):
+    # Devuelve un array 30x30
+    file = open(nombre, 'rb')
+    for n in range(13):
+        file.read(1)
+    res = []
+    for n in range(30):
+        for m in range(30):
+            res.append(int(struct.unpack('c', file.read(1))[0][0]))
+
+    return res
 
 
-#   Algoritmo de retropropagación
-
-
-#   Algoritmo de retropropagación con momentum. 
 
 # Parte 3: Aprendizaje para reconocer caras
 
@@ -217,7 +217,7 @@ def abrirRed(nombre):
 # TODO Tener un test (o varios) preparados para cada parte, y así probarlos
 # delante del profesor. 
 
-# Generación de conjuntos de entrenamiento para pruebas. 
+# Generación de conjuntos de entrenamiento aleatorios para pruebas. 
 # Los conjuntos de entrenamiento son matrices con todos los ejemplos de
 # entrenamiento (x,y). Cada ejemplo es una tupla (x,y) con x e y arrays de
 # datos. 
@@ -227,24 +227,44 @@ def generacionEntrenamiento(entradas, salidas, casos):
     for caso in range(casos):
         x = []
         for entrada in range(entradas):
-            x.append(1)
+            x.append(random())
         y = []
         for salida in range(salidas):
-            y.append(2)
+            y.append(random())
         d.append((x,y))
     return d
-ent = generacionEntrenamiento(2,1,15)
+
+"""
+a = leerImagen('foo.pgm')
+print(a)
+b = leerImagen('bar.pgm')
+print(b)
+red = RedNeuronal([900,1])
+ent = [(a,[0]),(b,[1])]
+print(red.pesos)
+print(red.reglaDelta(ent,0.1))
+
 print('--')
 red = RedNeuronal([2,1])
 print('Pesos red: ',red.pesos)
 print(red.reglaDelta(ent,0.1))
 """
-rn = RedNeuronal([6,2,2])
+
+"""
+# Prueba de entrenamiento de la regla Delta
+ent = [([34,255,2],[0]),([111,32,44],[1])]
+rn = RedNeuronal([3,1])
+rn.pesos = [[[0.5],[0.5],[0.5]]]
 print(rn.pesos)
 print('Retro, primer intento')
-print(rn.retrop(ent,0.4).pesos)
+print(rn.reglaDelta(ent,0.1))
+print(rn.pesos[0])
 """
+# Prueba de entrenamiento de algoritmo de retropropagación
 
-
+ent = [([1,2],[0,1])]
+rn = RedNeuronal([2,2,2])
+rn.retrop(ent,0.1)
+print(rn.pesos)
 #print(RedNeuronal([[0]]).generaPesosAleatorios([2,1,3,2]))
 
