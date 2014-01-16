@@ -1,5 +1,6 @@
-ReconocimientoCarasANN
+Reconocimiento de caras y expresiones mediante redes neuronales articifiales
 ======================
+Face and expression recognition using artificial neural networks. 
 [Spanish version]
  
 Reconocimiento de caras y expresiones mediante redes neuronales artificiales y un conjunto de entrenamiento. 
