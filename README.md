@@ -1,6 +1,12 @@
-Reconocimiento de caras y expresiones mediante redes neuronales articifiales
-======================
-Face and expression recognition using artificial neural networks. 
+# Face and expression recognition using artificial neural networks. 
+
+This is the code of a class project in the artificial inteligence class (ETSII - University of Seville, 2013). This project has been evaluated and finished, so I won't be working on it during some time. In order to lauch the image clasificator, you have to put a training set in the dir Img/. Inside reconocimientoImagenes.py there is a dict() with the scores of this set.
+
+Finally, you have to launch clasificador.py. 
+
+
+# Reconocimiento de caras y expresiones mediante redes neuronales articifiales
+
 [Spanish version]
  
 Reconocimiento de caras y expresiones mediante redes neuronales artificiales y un conjunto de entrenamiento. 
@@ -11,6 +17,9 @@ Para ejecutar el clasificador de imagenes, hay que poner el conjunto de entrenam
 Para finalizar, ejecutar clasificador.py para las pruebas. 
 
 Nota: Un error del trabajo es la ausencia de entradas de sesgo W0 en los nodos de la red, así que clasifica peor de lo que debería y a veces produce resultado no esperado. Ten esto en cuenta si vas a utilizar el código. 
+
+
+
 
 
 
